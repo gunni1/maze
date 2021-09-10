@@ -10,7 +10,8 @@ func main() {
 	dx := 3
 	dy := 3
 
-	maze := createMaze(dx, dy)
+	maze := CreateMaze(dx, dy)
+
 	//img := image.NewGray(image.Rect(0,0,dx*3,dy*3))
 
 	//Pick random start
@@ -22,47 +23,25 @@ func main() {
 	stack := Stack{stack: list.New()}
 	stack.push(Position{dxStart, dyStart})
 
-	//Solange stack nicht leer --
-	current := stack.pop()
-	neighbour := current.rollUnvisitedNeighbour(maze)
-	maze.removeWalls(current, neighbour)
-	//Zwischen current und gewählter die Wände entfernen
-	//gewählte als besucht markieren, push in stack
-
-	fmt.Print(maze)
-}
-
-//Return a random unvisited neighbour cell of the maze
-func (current Position) rollUnvisitedNeighbour(maze Maze) Position {
-	return Position{0, 0}
-}
-
-func (maze Maze) removeWalls(curr Position, neighb Position) {
-
-}
-
-func createMaze(dx int, dy int) Maze {
-	maze := make([][]Cell, dy)
-	for i := range maze {
-		maze[i] = make([]Cell, dx)
-	}
-	initial := Cell{top: true, left: true, right: true, bottom: true, visited: false}
-	for i, row := range maze {
-		for j := range row {
-			maze[i][j] = initial
+	for stack.hasElements() {
+		current := stack.pop()
+		neighbour, err := current.RollUnvisitedNeighbour(maze)
+		if err != nil {
+			continue
 		}
+		maze.RemoveWalls(current, neighbour)
+		maze.cells[neighbour.x][neighbour.y].visited = true
+		stack.push(neighbour)
 	}
-
-	return Maze{cells: maze}
-}
-
-//Visualize a Cell as a grid image 3x3 representation
-func (cell Cell) visualize() {
-
+	fmt.Print(maze)
 }
 
 type Stack struct {
 	stack *list.List
+}
+
+func (s Stack) hasElements() bool {
+	return s.stack.Len() > 0
 }
 
 func (s Stack) push(pos Position) {
@@ -71,21 +50,4 @@ func (s Stack) push(pos Position) {
 
 func (s Stack) pop() Position {
 	return Position{0, 0}
-}
-
-type Position struct {
-	x int
-	y int
-}
-
-type Maze struct {
-	cells [][]Cell
-}
-
-type Cell struct {
-	top     bool
-	left    bool
-	right   bool
-	bottom  bool
-	visited bool
 }
