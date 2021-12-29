@@ -3,16 +3,33 @@ package main
 import (
 	"container/list"
 	"fmt"
+	"image/png"
 	"math/rand"
+	"os"
 )
 
 func main() {
-	dx := 3
-	dy := 3
+	dx := 2
+	dy := 2
 
 	maze := CreateMaze(dx, dy)
 
-	//img := image.NewGray(image.Rect(0,0,dx*3,dy*3))
+	//TEST
+	maze.cells[0][0].top = true
+	maze.cells[0][0].right = true
+	maze.cells[1][0].bottom = true
+	maze.cells[1][0].left = true
+	maze.cells[1][1].top = true
+	maze.cells[1][1].left = true
+	maze.cells[0][1].left = true
+	maze.cells[0][1].right = true
+
+	image := maze.Visualize(dx, dy)
+
+	file, _ := os.Create("test.png")
+	png.Encode(file, image)
+
+	return
 
 	//Pick random start
 	dxStart := rand.Intn(dx)
