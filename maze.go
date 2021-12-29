@@ -1,8 +1,10 @@
 package main
 
 import (
+	"errors"
 	"image"
 	"image/color"
+	"math/rand"
 )
 
 type Position struct {
@@ -23,9 +25,42 @@ type Cell struct {
 	visited bool
 }
 
-//Return a random unvisited neighbour cell of the maze
+func (maze Maze) Size() (int, int) {
+	dx := 0
+	dy := 0
+	for i, cols := range maze.cells {
+		dy = len(cols)
+		dx = i + 1
+	}
+	//TODO implement
+	return dx, dy
+}
+
+//Return a random unvisited neighbour Cell of the Maze.
+//Return Error, if there are no unvisited Cells left.
 func (current Position) RollUnvisitedNeighbour(maze Maze) (Position, error) {
-	return Position{0, 0}, nil
+	candidates := make([]Position, 0)
+
+	candidates = appendIfValidUnvisited(candidates, Position{current.x, current.y - 1}, maze)
+	candidates = appendIfValidUnvisited(candidates, Position{current.x - 1, current.y}, maze)
+	candidates = appendIfValidUnvisited(candidates, Position{current.x + 1, current.y}, maze)
+	candidates = appendIfValidUnvisited(candidates, Position{current.x, current.y + 1}, maze)
+
+	if len(candidates) == 0 {
+		return Position{0, 0}, errors.New("no unvisited left")
+	} else {
+		return candidates[rand.Intn(len(candidates))], nil
+	}
+}
+
+func appendIfValidUnvisited(candidates []Position, candidate Position, maze Maze) []Position {
+	xMax, yMax := maze.Size()
+	inBounds := candidate.x < xMax && candidate.x > 0 && candidate.y < yMax && candidate.y > 0
+	if inBounds && !maze.cells[candidate.x][candidate.y].visited {
+		return append(candidates, candidate)
+	} else {
+		return candidates
+	}
 }
 
 //Positions are not allowed to be out of the bounds of the maze
