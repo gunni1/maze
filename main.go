@@ -1,15 +1,15 @@
 package main
 
 import (
-	"container/list"
+	"fmt"
 	"image/png"
 	"math/rand"
 	"os"
 )
 
 func main() {
-	dx := 2
-	dy := 2
+	dx := 3
+	dy := 3
 
 	maze := CreateMaze(dx, dy)
 
@@ -28,16 +28,18 @@ func main() {
 	//Pick random start
 	dxStart := rand.Intn(dx)
 	dyStart := rand.Intn(dy)
+	fmt.Printf("Start: %d, %d \n", dxStart, dyStart)
 	maze.cells[dxStart][dyStart].visited = true
 
 	//Depth-First iterative
-	stack := Stack{stack: list.New()}
+	stack := Stack{Data: make([]Position, 0, dx*dy)}
 	stack.push(Position{dxStart, dyStart})
 
 	for stack.hasElements() {
 		current := stack.pop()
 		neighbour, err := current.RollUnvisitedNeighbour(maze)
 		if err != nil {
+			fmt.Printf("No Neightbour found for: %v \n", current)
 			continue
 		}
 		maze.RemoveWalls(current, neighbour)
@@ -52,19 +54,19 @@ func main() {
 }
 
 type Stack struct {
-	stack *list.List
+	Data []Position
 }
 
 func (s Stack) hasElements() bool {
-	return s.stack.Len() > 0
+	return len(s.Data) > 0
 }
 
-func (s Stack) push(pos Position) {
-	s.stack.PushFront(&pos)
+func (s *Stack) push(pos Position) {
+	s.Data = append(s.Data, pos)
 }
 
-func (s Stack) pop() Position {
-	cell := s.stack.Front()
-	s.stack.Remove(cell)
-	return cell.Value
+func (s *Stack) pop() Position {
+	cell, cdr := s.Data[len(s.Data)-1], s.Data[:len(s.Data)-1]
+	s.Data = cdr
+	return cell
 }
