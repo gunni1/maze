@@ -36,8 +36,25 @@ func (maze Maze) Size() (int, int) {
 	return dx, dy
 }
 
-//Return a random unvisited neighbour Cell of the Maze.
-//Return Error, if there are no unvisited Cells left.
+//Return a all unvisited neighbour Cells of the Maze.
+//Return Error, if there are no unvisited Cells remain.
+func (current Position) FindUnvisitedNeighbour(maze Maze) ([]Position, error) {
+	candidates := make([]Position, 0)
+
+	candidates = appendIfValidUnvisited(candidates, Position{current.x, current.y - 1}, maze)
+	candidates = appendIfValidUnvisited(candidates, Position{current.x - 1, current.y}, maze)
+	candidates = appendIfValidUnvisited(candidates, Position{current.x + 1, current.y}, maze)
+	candidates = appendIfValidUnvisited(candidates, Position{current.x, current.y + 1}, maze)
+
+	if len(candidates) == 0 {
+		return nil, errors.New("no unvisited remain")
+	} else {
+		return candidates, nil
+	}
+}
+
+//Return a a random unvisited neighbour Cell in the Maze.
+//Return Error, if there are no unvisited Cells remain.
 func (current Position) RollUnvisitedNeighbour(maze Maze) (Position, error) {
 	candidates := make([]Position, 0)
 
@@ -47,7 +64,7 @@ func (current Position) RollUnvisitedNeighbour(maze Maze) (Position, error) {
 	candidates = appendIfValidUnvisited(candidates, Position{current.x, current.y + 1}, maze)
 
 	if len(candidates) == 0 {
-		return Position{0, 0}, errors.New("no unvisited left")
+		return Position{}, errors.New("no unvisited remain")
 	} else {
 		return candidates[rand.Intn(len(candidates))], nil
 	}
@@ -55,7 +72,7 @@ func (current Position) RollUnvisitedNeighbour(maze Maze) (Position, error) {
 
 func appendIfValidUnvisited(candidates []Position, candidate Position, maze Maze) []Position {
 	xMax, yMax := maze.Size()
-	inBounds := candidate.x < xMax && candidate.x > 0 && candidate.y < yMax && candidate.y > 0
+	inBounds := candidate.x < xMax && candidate.x >= 0 && candidate.y < yMax && candidate.y >= 0
 	if inBounds && !maze.cells[candidate.x][candidate.y].visited {
 		return append(candidates, candidate)
 	} else {
@@ -88,15 +105,11 @@ func (maze Maze) RemoveWalls(curr Position, neighb Position) error {
 }
 
 func CreateMaze(dx int, dy int) Maze {
-	maze := make([][]Cell, dy)
+	maze := make([][]Cell, dx)
 	for i := range maze {
-		maze[i] = make([]Cell, dx)
+		maze[i] = make([]Cell, dy)
 	}
 	return Maze{cells: maze}
-}
-
-func (maze Maze) CreateGridImage() {
-
 }
 
 //Visualize a Maze with each Cell as its 3x3 px representation

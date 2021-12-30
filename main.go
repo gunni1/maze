@@ -37,11 +37,15 @@ func main() {
 
 	for stack.hasElements() {
 		current := stack.pop()
+
 		neighbour, err := current.RollUnvisitedNeighbour(maze)
 		if err != nil {
-			fmt.Printf("No Neightbour found for: %v \n", current)
 			continue
 		}
+		//Current goes back to the stack
+		stack.push(current)
+
+		//Remove Walls and set chosen Cell as visited
 		maze.RemoveWalls(current, neighbour)
 		maze.cells[neighbour.x][neighbour.y].visited = true
 		stack.push(neighbour)
