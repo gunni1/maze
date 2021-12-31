@@ -32,7 +32,6 @@ func (maze Maze) Size() (int, int) {
 		dy = len(cols)
 		dx = i + 1
 	}
-	//TODO implement
 	return dx, dy
 }
 
