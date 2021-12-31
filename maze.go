@@ -36,23 +36,6 @@ func (maze Maze) Size() (int, int) {
 	return dx, dy
 }
 
-//Return a all unvisited neighbour Cells of the Maze.
-//Return Error, if there are no unvisited Cells remain.
-func (current Position) FindUnvisitedNeighbour(maze Maze) ([]Position, error) {
-	candidates := make([]Position, 0)
-
-	candidates = appendIfValidUnvisited(candidates, Position{current.x, current.y - 1}, maze)
-	candidates = appendIfValidUnvisited(candidates, Position{current.x - 1, current.y}, maze)
-	candidates = appendIfValidUnvisited(candidates, Position{current.x + 1, current.y}, maze)
-	candidates = appendIfValidUnvisited(candidates, Position{current.x, current.y + 1}, maze)
-
-	if len(candidates) == 0 {
-		return nil, errors.New("no unvisited remain")
-	} else {
-		return candidates, nil
-	}
-}
-
 //Return a a random unvisited neighbour Cell in the Maze.
 //Return Error, if there are no unvisited Cells remain.
 func (current Position) RollUnvisitedNeighbour(maze Maze) (Position, error) {
@@ -101,7 +84,6 @@ func (maze Maze) RemoveWalls(curr Position, neighb Position) error {
 		}
 	}
 	return nil
-	//TODO out of bounds fehler erzeugen
 }
 
 func CreateMaze(dx int, dy int) Maze {
@@ -113,8 +95,8 @@ func CreateMaze(dx int, dy int) Maze {
 }
 
 //Visualize a Maze with each Cell as its 3x3 px representation
-func (maze Maze) Visualize(dx int, dy int) image.Image {
-	//TODO: find dimension programmatically
+func (maze Maze) Visualize() image.Image {
+	dx, dy := maze.Size()
 	img := image.NewGray(image.Rect(0, 0, dx*3, dy*3))
 
 	for i := 0; i < dx; i++ {
